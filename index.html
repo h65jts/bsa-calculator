@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AML Investigation Savings Calculator</title>
+<title>BSA/AML Efficiency Calculator</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -46,43 +46,35 @@ th {
 
 td {
     border: 1px solid #ddd;
-    padding: 10px;
+    padding: 12px;
 }
 
 td:first-child {
     text-align: left;
 }
 
-td:last-child {
+td:nth-child(2),
+td:nth-child(3) {
     text-align: center;
 }
 
 input[type="number"] {
-    width: 90px;
+    width: 100px;
     padding: 6px;
 }
 
-.controls {
+.slider-container {
     margin-top: 20px;
 }
 
-.controls label {
+.slider-container label {
     display: block;
     font-weight: bold;
-    margin-top: 15px;
-    margin-bottom: 5px;
-}
-
-.controls input[type="number"] {
-    width: 180px;
-}
-
-.slider-container {
-    margin-top: 15px;
+    margin-bottom: 10px;
 }
 
 .slider-value {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     color: #0078d4;
     text-align: center;
@@ -107,192 +99,195 @@ input[type="number"] {
 }
 
 .metric-value {
-    font-size: 42px;
+    font-size: 48px;
     font-weight: bold;
     color: #003366;
 }
 
-.savings-value {
-    font-size: 52px;
-    font-weight: bold;
+.hours-returned {
     color: #0a8f2b;
 }
 
 .disclaimer {
-    margin-top: 25px;
+    margin-top: 20px;
     font-size: 12px;
     color: #666;
 }
+
+@media (max-width: 768px) {
+
+    body {
+        padding: 15px;
+    }
+
+    input[type="number"] {
+        width: 80px;
+    }
+
+    .metric-value {
+        font-size: 36px;
+    }
+}
 </style>
 </head>
+
 <body>
 
 <div class="container">
 
-<h1>AML Investigation Savings Calculator</h1>
+    <h1>BSA/AML Efficiency Calculator</h1>
 
-<p class="description">
-Estimate annual time and labor savings based on your current investigation workflow.
-</p>
+    <p class="description">
+        Estimate annual staff capacity returned through improved investigation efficiency.
+    </p>
 
-<table>
-<tr>
-    <th>Activity</th>
-    <th>Manual Hours</th>
-</tr>
+    <table>
 
-<tr>
-    <td>Alert Review</td>
-    <td><input type="number" step="0.01" id="m1" value="0" oninput="calculateSavings()"></td>
-</tr>
+        <tr>
+            <th>Activity</th>
+            <th>Monthly Volume</th>
+            <th>Time Required</th>
+        </tr>
 
-<tr>
-    <td>Customer Research</td>
-    <td><input type="number" step="0.01" id="m2" value="0" oninput="calculateSavings()"></td>
-</tr>
+        <tr>
+            <td>False Positive Alerts</td>
 
-<tr>
-    <td>Transaction Analysis</td>
-    <td><input type="number" step="0.01" id="m3" value="0" oninput="calculateSavings()"></td>
-</tr>
+            <td>
+                <input
+                    type="number"
+                    id="fpCount"
+                    min="0"
+                    value="0"
+                    oninput="calculate()">
+            </td>
 
-<tr>
-    <td>Narrative Drafting</td>
-    <td><input type="number" step="0.01" id="m4" value="0" oninput="calculateSavings()"></td>
-</tr>
+            <td>
+                <input
+                    type="number"
+                    id="fpMinutes"
+                    min="0"
+                    value="0"
+                    oninput="calculate()">
+                Minutes
+            </td>
+        </tr>
 
-<tr>
-    <td>Management Review</td>
-    <td><input type="number" step="0.01" id="m5" value="0" oninput="calculateSavings()"></td>
-</tr>
+        <tr>
+            <td>SARs Filed</td>
 
-<tr>
-    <td>Filing &amp; Record Retention</td>
-    <td><input type="number" step="0.01" id="m6" value="0" oninput="calculateSavings()"></td>
-</tr>
-</table>
+            <td>
+                <input
+                    type="number"
+                    id="sarCount"
+                    min="0"
+                    value="0"
+                    oninput="calculate()">
+            </td>
 
-<div class="controls">
+            <td>
+                <input
+                    type="number"
+                    step="0.1"
+                    id="sarHours"
+                    min="0"
+                    value="0"
+                    oninput="calculate()">
+                Hours
+            </td>
+        </tr>
 
-<label>Cases Investigated Per Month</label>
-<input type="number" id="cases" value="0" oninput="calculateSavings()">
+    </table>
 
-<label>Hourly Rate ($)</label>
-<input type="number" id="rate" value="0" oninput="calculateSavings()">
+    <div class="slider-container">
 
-<div class="slider-container">
+        <label>Estimated Efficiency Improvement</label>
 
-<label>Estimated Time Savings</label>
+        <input
+            type="range"
+            id="efficiency"
+            min="0"
+            max="100"
+            value="40"
+            style="width:100%;"
+            oninput="updateSlider(); calculate();">
 
-<input
-    type="range"
-    id="savingsPercent"
-    min="0"
-    max="100"
-    value="0"
-    style="width:100%;"
-    oninput="updateSlider(); calculateSavings();">
+        <div class="slider-value" id="sliderValue">
+            40%
+        </div>
 
-<div class="slider-value" id="sliderValue">
-0%
-</div>
-
-</div>
-
-</div>
-
-<div class="results">
-
-<div class="metric">
-    <div class="metric-label">
-        Current Investigation Hours Per Case
     </div>
-    <div class="metric-value" id="manualTotal">
-        0.00
-    </div>
-</div>
 
-<div class="metric">
-    <div class="metric-label">
-        Annual Hours Returned to Staff
-    </div>
-    <div class="metric-value" id="annualHours">
-        0
-    </div>
-</div>
+    <div class="results">
 
-<div class="metric">
-    <div class="metric-label">
-        Estimated Annual Labor Savings
-    </div>
-    <div class="savings-value" id="annualSavings">
-        $0
-    </div>
-</div>
+        <div class="metric">
+            <div class="metric-label">
+                Current Annual Investigation Hours
+            </div>
 
-<div class="disclaimer">
-Illustrative estimates based on user-provided assumptions. Actual results may vary based on staffing, workflows, alert volume, investigation complexity, and other operational factors.
-</div>
+            <div class="metric-value" id="annualHoursCurrent">
+                0
+            </div>
+        </div>
 
-</div>
+        <div class="metric">
+            <div class="metric-label">
+                Estimated Annual Hours Returned
+            </div>
+
+            <div class="metric-value hours-returned" id="hoursReturned">
+                0
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            Estimates are illustrative and based on user-provided assumptions. Actual results may vary based on staffing, workflows, alert volume, investigation complexity, and other operational factors.
+        </div>
+
+    </div>
 
 </div>
 
 <script>
-
-function money(value) {
-    return value.toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD',
-        maximumFractionDigits: 0
-    });
-}
 
 function val(id) {
     return Number(document.getElementById(id).value) || 0;
 }
 
 function updateSlider() {
-    document.getElementById('sliderValue').innerText =
-        document.getElementById('savingsPercent').value + '%';
+
+    document.getElementById("sliderValue").innerText =
+        val("efficiency") + "%";
 }
 
-function calculateSavings() {
+function calculate() {
 
-    const manual =
-        val('m1') +
-        val('m2') +
-        val('m3') +
-        val('m4') +
-        val('m5') +
-        val('m6');
+    const fpCount = val("fpCount");
+    const fpMinutes = val("fpMinutes");
 
-    const casesPerMonth = val('cases');
-    const hourlyRate = val('rate');
-    const savingsPercent = val('savingsPercent');
+    const sarCount = val("sarCount");
+    const sarHours = val("sarHours");
 
-    const annualHoursSaved =
-        manual *
-        casesPerMonth *
-        12 *
-        (savingsPercent / 100);
+    const efficiency = val("efficiency") / 100;
 
-    const annualSavings =
-        annualHoursSaved *
-        hourlyRate;
+    const monthlyHours =
+        (fpCount * (fpMinutes / 60)) +
+        (sarCount * sarHours);
 
-    document.getElementById('manualTotal').innerText =
-        manual.toFixed(2);
+    const annualHours =
+        monthlyHours * 12;
 
-    document.getElementById('annualHours').innerText =
-        Math.round(annualHoursSaved).toLocaleString();
+    const annualHoursReturned =
+        annualHours * efficiency;
 
-    document.getElementById('annualSavings').innerText =
-        money(annualSavings);
+    document.getElementById("annualHoursCurrent").innerText =
+        Math.round(annualHours).toLocaleString();
+
+    document.getElementById("hoursReturned").innerText =
+        Math.round(annualHoursReturned).toLocaleString();
 }
 
 updateSlider();
-calculateSavings();
+calculate();
 
 </script>
 
