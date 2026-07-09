@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BSA/AML Efficiency Calculator</title>
+<title>BSA/AML Alert Efficiency Calculator</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -13,7 +13,7 @@ body {
 }
 
 .container {
-    max-width: 1000px;
+    max-width: 1100px;
     margin: auto;
     background: white;
     padding: 30px;
@@ -24,12 +24,14 @@ body {
 h1 {
     text-align: center;
     color: #003366;
+    margin-bottom: 10px;
 }
 
 .description {
     text-align: center;
     color: #666;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
+    line-height: 1.5;
 }
 
 table {
@@ -47,10 +49,11 @@ th {
 td {
     border: 1px solid #ddd;
     padding: 12px;
+    vertical-align: top;
 }
 
 td:first-child {
-    text-align: left;
+    width: 50%;
 }
 
 td:nth-child(2),
@@ -63,8 +66,15 @@ input[type="number"] {
     padding: 6px;
 }
 
+small {
+    color: #666;
+    display: block;
+    margin-top: 4px;
+    line-height: 1.4;
+}
+
 .slider-container {
-    margin-top: 20px;
+    margin-top: 25px;
 }
 
 .slider-container label {
@@ -74,7 +84,7 @@ input[type="number"] {
 }
 
 .slider-value {
-    font-size: 28px;
+    font-size: 32px;
     font-weight: bold;
     color: #0078d4;
     text-align: center;
@@ -108,10 +118,42 @@ input[type="number"] {
     color: #0a8f2b;
 }
 
-.disclaimer {
+.lifecycle {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
     margin-top: 20px;
+}
+
+.lifecycle h3 {
+    margin-top: 0;
+    color: #003366;
+}
+
+.lifecycle ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.lifecycle li {
+    margin-bottom: 10px;
+}
+
+.funnel {
+    margin-top: 15px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    border-left: 5px solid #0078d4;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.disclaimer {
+    margin-top: 25px;
     font-size: 12px;
     color: #666;
+    line-height: 1.5;
 }
 
 @media (max-width: 768px) {
@@ -120,12 +162,16 @@ input[type="number"] {
         padding: 15px;
     }
 
+    .metric-value {
+        font-size: 36px;
+    }
+
     input[type="number"] {
         width: 80px;
     }
 
-    .metric-value {
-        font-size: 36px;
+    table {
+        font-size: 14px;
     }
 }
 </style>
@@ -135,64 +181,99 @@ input[type="number"] {
 
 <div class="container">
 
-    <h1>BSA/AML Efficiency Calculator</h1>
+    <h1>BSA/AML Alert Efficiency Calculator</h1>
 
     <p class="description">
-        Estimate annual staff capacity returned through improved investigation efficiency.
+        Estimate annual staff capacity returned through improved alert review and investigation efficiency.
+        This calculator reflects the typical BSA workflow where alerts are either closed as false positives,
+        investigated and closed without a SAR, or escalated through SAR filing and FinCEN reporting.
     </p>
 
     <table>
 
         <tr>
-            <th>Activity</th>
+            <th>Alert Outcome</th>
             <th>Monthly Volume</th>
-            <th>Time Required</th>
+            <th>Average Time Required</th>
         </tr>
 
         <tr>
-            <td>False Positive Alerts</td>
-
+            <td>
+                <strong>False Positive Alerts</strong>
+                <small>
+                    Alert reviewed and closed with no meaningful investigation required.
+                </small>
+            </td>
             <td>
                 <input
                     type="number"
                     id="fpCount"
                     min="0"
-                    value="0"
+                    value="100"
                     oninput="calculate()">
             </td>
-
             <td>
                 <input
                     type="number"
                     id="fpMinutes"
                     min="0"
-                    value="0"
+                    value="10"
                     oninput="calculate()">
-                Minutes
+                Minutes per Alert
             </td>
         </tr>
 
         <tr>
-            <td>SARs Filed</td>
+            <td>
+                <strong>Investigations Closed Without SAR</strong>
+                <small>
+                    Alert warranted investigation, but suspicious activity was not substantiated and no SAR was filed.
+                </small>
+            </td>
+            <td>
+                <input
+                    type="number"
+                    id="investigationCount"
+                    min="0"
+                    value="25"
+                    oninput="calculate()">
+            </td>
+            <td>
+                <input
+                    type="number"
+                    id="investigationHours"
+                    min="0"
+                    step="0.1"
+                    value="1.5"
+                    oninput="calculate()">
+                Hours per Investigation
+            </td>
+        </tr>
 
+        <tr>
+            <td>
+                <strong>SARs Filed</strong>
+                <small>
+                    Investigation resulted in a Suspicious Activity Report filing with FinCEN.
+                </small>
+            </td>
             <td>
                 <input
                     type="number"
                     id="sarCount"
                     min="0"
-                    value="0"
+                    value="5"
                     oninput="calculate()">
             </td>
-
             <td>
                 <input
                     type="number"
-                    step="0.1"
                     id="sarHours"
                     min="0"
-                    value="0"
+                    step="0.1"
+                    value="4"
                     oninput="calculate()">
-                Hours
+                Hours per SAR
             </td>
         </tr>
 
@@ -205,14 +286,14 @@ input[type="number"] {
         <input
             type="range"
             id="efficiency"
-            min="0"
-            max="100"
-            value="0"
+            min="10"
+            max="60"
+            value="40"
             style="width:100%;"
             oninput="updateSlider(); calculate();">
 
         <div class="slider-value" id="sliderValue">
-            0%
+            40%
         </div>
 
     </div>
@@ -239,8 +320,45 @@ input[type="number"] {
             </div>
         </div>
 
+        <div class="lifecycle">
+
+            <h3>Current Alert Lifecycle Breakdown</h3>
+
+            <ul>
+                <li>
+                    False Positive Alerts:
+                    <strong id="fpDisplay">0</strong>
+                </li>
+
+                <li>
+                    Investigated / No SAR:
+                    <strong id="investigationDisplay">0</strong>
+                </li>
+
+                <li>
+                    SARs Filed:
+                    <strong id="sarDisplay">0</strong>
+                </li>
+            </ul>
+
+            <div class="funnel">
+                <strong>Alert Workflow:</strong><br>
+                Alert Generated → Initial Review →
+                False Positive
+                <strong>OR</strong>
+                Investigation →
+                Closed Without SAR
+                <strong>OR</strong>
+                SAR Filed with FinCEN
+            </div>
+
+        </div>
+
         <div class="disclaimer">
-            Estimates are illustrative and based on user-provided assumptions. Actual results may vary based on staffing, workflows, alert volume, investigation complexity, and other operational factors.
+            Estimates are illustrative and based on user-provided assumptions.
+            Actual results vary based on alert quality, staffing levels, workflow maturity,
+            customer risk profiles, investigation complexity, reporting requirements,
+            and institutional operating practices.
         </div>
 
     </div>
@@ -254,7 +372,6 @@ function val(id) {
 }
 
 function updateSlider() {
-
     document.getElementById("sliderValue").innerText =
         val("efficiency") + "%";
 }
@@ -264,17 +381,37 @@ function calculate() {
     const fpCount = val("fpCount");
     const fpMinutes = val("fpMinutes");
 
-    const sarCount = val("sarCount");
-    const sarHours = val("sarHours");
+    const investigationCount =
+        val("investigationCount");
 
-    const efficiency = val("efficiency") / 100;
+    const investigationHours =
+        val("investigationHours");
 
-    const monthlyHours =
-        (fpCount * (fpMinutes / 60)) +
-        (sarCount * sarHours);
+    const sarCount =
+        val("sarCount");
+
+    const sarHours =
+        val("sarHours");
+
+    const efficiency =
+        val("efficiency") / 100;
+
+    const monthlyFalsePositiveHours =
+        fpCount * (fpMinutes / 60);
+
+    const monthlyInvestigationHours =
+        investigationCount * investigationHours;
+
+    const monthlySarHours =
+        sarCount * sarHours;
+
+    const monthlyTotalHours =
+        monthlyFalsePositiveHours +
+        monthlyInvestigationHours +
+        monthlySarHours;
 
     const annualHours =
-        monthlyHours * 12;
+        monthlyTotalHours * 12;
 
     const annualHoursReturned =
         annualHours * efficiency;
@@ -284,6 +421,15 @@ function calculate() {
 
     document.getElementById("hoursReturned").innerText =
         Math.round(annualHoursReturned).toLocaleString();
+
+    document.getElementById("fpDisplay").innerText =
+        fpCount.toLocaleString();
+
+    document.getElementById("investigationDisplay").innerText =
+        investigationCount.toLocaleString();
+
+    document.getElementById("sarDisplay").innerText =
+        sarCount.toLocaleString();
 }
 
 updateSlider();
