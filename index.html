@@ -288,7 +288,7 @@ small {
         </div>
 
         <div class="metric">
-            <div class="metric label">
+            <div class="metric-label">
                 Estimated FTE Capacity Returned
             </div>
 
@@ -296,11 +296,13 @@ small {
                 0.00
             </div>
         </div>
+
         <div class="disclaimer">
             Estimates are illustrative and based on user-provided assumptions.
             Actual results may vary based on staffing, workflows, alert volume,
             investigation complexity, customer risk profiles, reporting requirements,
-            and operational practices.
+            and operational practices. FTE capacity is calculated using 2,080 annual
+            work hours per full-time employee.
         </div>
 
     </div>
@@ -358,11 +360,17 @@ function calculate() {
     const annualHoursReturned =
         annualHours * efficiency;
 
+    const fteReturned =
+        annualHoursReturned / 2080;
+
     document.getElementById("annualHoursCurrent").innerText =
         Math.round(annualHours).toLocaleString();
 
     document.getElementById("hoursReturned").innerText =
         Math.round(annualHoursReturned).toLocaleString();
+
+    document.getElementById("fteReturned").innerText =
+        fteReturned.toFixed(2);
 }
 
 updateSlider();
